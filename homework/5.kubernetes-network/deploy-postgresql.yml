@@ -1,0 +1,52 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgresql
+  labels:
+    app: postgresql
+  namespace: gb5
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      project: postgres
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        project: postgres
+    spec:
+      containers:
+      - image: postgres:10.13
+        name: postgres
+        ports:
+        - containerPort: 5432
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 200m
+            memory: 500Mi
+          limits:
+            cpu: 400m
+            memory: 1000Mi
+        volumeMounts:
+        - name: pgdata
+          mountPath: /var/lib/postgresql/data/
+        env:
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        - name: POSTGRES_DB
+          value: testdatabase
+        - name: POSTGRES_USER
+          value: testuser
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: gb-password
+              key: postgresql_password
+      volumes:
+      - name: pgdata
+        persistentVolumeClaim:
+          claimName: pgdata

@@ -1,0 +1,49 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redmine
+  labels:
+    app: redmine
+  namespace: gb5
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      project: redmine
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        project: redmine
+    spec:
+      containers:
+      - image: redmine:4.1.1
+        name: redmine
+        ports:
+        - containerPort: 3000
+        resources:
+          requests:
+            cpu: 200m
+            memory: 500Mi
+          limits:
+            cpu: 400m
+            memory: 1000Mi
+        env:
+        - name: REDMINE_DB_POSTGRES
+          value: database
+        - name: REDMINE_DB_USERNAME
+          value: testuser
+        - name: REDMINE_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: gb-password
+              key: postgresql_password
+        - name: REDMINE_DB_DATABASE
+          value: testdatabase
+        - name: REDMINE_SECRET_KEY_BASE
+          valueFrom:
+            secretKeyRef:
+              name: gb-password
+              key: redmine_password
