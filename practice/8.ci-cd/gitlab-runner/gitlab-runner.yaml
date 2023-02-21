@@ -12,7 +12,7 @@ metadata:
   namespace: gitlab
 type: Opaque
 stringData:
-  runner-registration-token: "Enter your registration token here"
+  runner-registration-token: GR1348941fCFy2uGdUi6hmy9ssh4H
   runner-token: ""
 ---
 apiVersion: v1
@@ -81,17 +81,18 @@ data:
       --working-directory=/home/gitlab-runner
 
   config.toml: |
-    concurrent = 10
+    concurrent = 1
     check_interval = 30
     log_level = "info"
-
+    privileged = true
 
   config.template.toml:   |
     [[runners]]
       [runners.kubernetes]
         namespace = "gitlab"
-        image = "ubuntu:16.04"
-
+        image = "docker:18.09.7-dind"
+        privileged = true
+        executor = "docker"
 
   register-the-runner: |
     #!/bin/bash
